@@ -1,148 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CopyPost Pro – AI Caption Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#080808;--surface:rgba(255,255,255,0.03);--surface2:rgba(255,255,255,0.05);
+  --border:rgba(212,175,55,0.1);--border2:rgba(212,175,55,0.18);
+  --gold:#d4af37;--gold2:#f0d060;--gold3:#b8962e;
+  --green:#10b981;--red:#ef4444;
+  --text:#faf6ec;--text2:#a89060;--text3:#5a4a2a;--radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);overflow-x:hidden;}
+.glow-1{position:fixed;top:-300px;left:50%;transform:translateX(-50%);width:1000px;height:1000px;background:radial-gradient(circle,rgba(212,175,55,0.07) 0%,transparent 65%);pointer-events:none;z-index:0;}
+.glow-2{position:fixed;bottom:-200px;right:-100px;width:700px;height:700px;background:radial-gradient(circle,rgba(212,175,55,0.05) 0%,transparent 65%);pointer-events:none;z-index:0;}
+.page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;}
 
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 36px;border-bottom:1px solid var(--border);background:rgba(8,8,8,0.95);backdrop-filter:blur(24px);position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,#b8962e,#d4af37,#f0d060);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 16px rgba(212,175,55,0.35);}
+.logo-name{font-size:18px;font-weight:900;}
+.logo-name span{background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.badge-pro{background:linear-gradient(135deg,#b8962e,#d4af37,#f0d060);color:#000;font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;letter-spacing:.8px;}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-user{font-size:13px;color:var(--text2);font-weight:600;}
+.nav-plan{padding:4px 10px;border-radius:8px;font-size:11px;font-weight:800;letter-spacing:.5px;}
+.nav-plan.free{background:rgba(255,255,255,0.06);color:var(--text2);border:1px solid var(--border2);}
+.nav-plan.premium{background:rgba(212,175,55,0.12);color:var(--gold2);border:1px solid var(--gold3);}
+.btn-nav{background:rgba(255,255,255,0.05);border:1px solid var(--border2);color:var(--text2);font-size:13px;font-weight:600;padding:7px 16px;border-radius:9px;cursor:pointer;font-family:inherit;transition:all .2s;}
+.btn-nav:hover{color:var(--gold2);border-color:var(--gold);}
+.btn-upgrade{background:linear-gradient(135deg,#b8962e,#d4af37);color:#000;font-size:12px;font-weight:800;padding:7px 16px;border-radius:9px;cursor:pointer;font-family:inherit;border:none;transition:all .2s;box-shadow:0 2px 10px rgba(212,175,55,0.25);}
+.btn-upgrade:hover{box-shadow:0 4px 18px rgba(212,175,55,0.4);}
 
+/* USAGE BAR */
+.usage-bar-wrap{padding:10px 36px;background:rgba(8,8,8,0.6);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;}
+.usage-text{font-size:12px;color:var(--text2);font-weight:600;white-space:nowrap;}
+.usage-bar{flex:1;max-width:200px;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
+.usage-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold3),var(--gold2));transition:width .4s;}
+.usage-fill.danger{background:linear-gradient(90deg,#ef4444,#f97316);}
+.usage-unlimited{font-size:12px;color:var(--gold2);font-weight:700;}
 
-✍️
-CopyPost
-PRO
-Login Get Started Free →
+/* LAYOUT */
+main{flex:1;display:grid;grid-template-columns:400px 1fr;min-height:0;}
+@media(max-width:900px){main{grid-template-columns:1fr;}.result-panel{border-left:none;border-top:1px solid var(--border);}}
 
-Loading...
-♾️ Unlimited
-⚡ Upgrade Premium
+/* FORM PANEL */
+.form-panel{padding:28px 32px;border-right:1px solid var(--border);overflow-y:auto;max-height:calc(100vh - 110px);position:sticky;top:110px;}
+.panel-title{font-size:19px;font-weight:800;margin-bottom:2px;}
+.panel-sub{color:var(--text2);font-size:13px;margin-bottom:22px;}
+.section-label{font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--text3);margin-bottom:9px;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:7px;}
+.field input,.field textarea{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:11px;padding:11px 14px;color:var(--text);font-size:14px;outline:none;font-family:inherit;transition:border .2s;}
+.field input:focus,.field textarea:focus{border-color:var(--gold3);box-shadow:0 0 0 3px rgba(212,175,55,0.07);}
+.field input::placeholder,.field textarea::placeholder{color:var(--text3);}
+.field textarea{resize:none;}
+.char-count{font-size:11px;color:var(--text3);text-align:right;margin-top:4px;}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;}
+.chip{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .18s;user-select:none;font-family:inherit;}
+.chip:hover{border-color:var(--gold);color:var(--gold2);}
+.chip.on{background:rgba(212,175,55,0.1);border-color:var(--gold);color:var(--gold2);}
+.slider-wrap{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.slider-wrap input[type=range]{flex:1;accent-color:var(--gold);height:4px;border:none;padding:0;background:transparent;}
+.slider-label{font-size:12px;font-weight:700;color:var(--gold);min-width:54px;text-align:right;}
+.var-row{display:flex;gap:8px;margin-bottom:16px;}
+.vbtn{width:44px;height:36px;background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;font-family:inherit;}
+.vbtn.on{background:rgba(212,175,55,0.1);border-color:var(--gold);color:var(--gold2);}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:11px 14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:11px;}
+.toggle-row-label{font-size:13px;font-weight:600;color:var(--text2);}
+.toggle{position:relative;width:42px;height:24px;display:inline-block;}
+.toggle input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;background:var(--text3);border-radius:12px;cursor:pointer;transition:background .2s;}
+.toggle input:checked~.toggle-track{background:var(--gold3);}
+.toggle-thumb{position:absolute;left:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none;}
+.toggle input:checked~.toggle-thumb{transform:translateX(18px);}
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
+.btn-gen{width:100%;background:linear-gradient(135deg,#b8962e,#d4af37,#f0d060);color:#0a0a0a;border:none;border-radius:var(--radius);padding:15px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;position:relative;overflow:hidden;transition:all .2s;box-shadow:0 4px 24px rgba(212,175,55,0.35);letter-spacing:.3px;}
+.btn-gen:hover{transform:translateY(-1px);box-shadow:0 8px 36px rgba(212,175,55,0.5);}
+.btn-gen:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+.err{color:#f87171;font-size:12px;margin-bottom:10px;padding:10px 12px;background:rgba(239,68,68,0.08);border-radius:9px;border:1px solid rgba(239,68,68,0.2);}
 
-New Caption
-Fill in your product details — AI handles the rest ✨
-🛍️ Product / Business Name *
-0/100
-📝 Product Description *
-0/400
+/* RESULT */
+.result-panel{display:flex;flex-direction:column;overflow-y:auto;max-height:calc(100vh - 110px);}
+.tabs{display:flex;border-bottom:1px solid var(--border);background:rgba(8,8,8,0.85);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10;}
+.tab{flex:1;padding:14px;font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all .2s;}
+.tab:hover{color:var(--gold2);}
+.tab.on{color:var(--gold2);border-bottom-color:var(--gold);}
+.tab-pane{display:none;padding:24px 28px;flex:1;}
+.tab-pane.on{display:flex;flex-direction:column;}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px;border:1.5px dashed var(--border2);border-radius:18px;min-height:280px;}
+.empty-ico{font-size:48px;margin-bottom:14px;opacity:.3;}
+.empty p{color:var(--text2);font-size:14px;line-height:1.7;}
+.skel{background:linear-gradient(90deg,rgba(255,255,255,0.03) 25%,rgba(255,255,255,0.07) 50%,rgba(255,255,255,0.03) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:7px;height:14px;margin-bottom:10px;}
+@keyframes shimmer{to{background-position:-200% 0;}}
+.captions{display:flex;flex-direction:column;gap:14px;}
+.c-card{background:rgba(255,255,255,0.02);border:1px solid var(--border2);border-radius:16px;padding:20px;animation:fadeUp .35s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.c-card:hover{border-color:rgba(212,175,55,0.25);}
+.c-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.c-var{background:rgba(212,175,55,0.1);color:var(--gold2);font-size:10px;font-weight:800;padding:4px 10px;border-radius:6px;letter-spacing:.8px;border:1px solid rgba(212,175,55,0.2);}
+.c-actions{display:flex;gap:7px;}
+.ibtn{background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:13px;color:var(--text2);font-family:inherit;transition:all .2s;}
+.ibtn:hover{border-color:var(--gold3);color:var(--gold2);}
+.ibtn.ok{background:rgba(16,185,129,0.1);border-color:var(--green);color:var(--green);}
+.c-text{font-size:14px;line-height:1.85;color:#cbd5e1;white-space:pre-wrap;word-break:break-word;}
+.c-footer{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+.c-tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:rgba(255,255,255,0.04);color:var(--text3);}
+.action-bar{display:flex;gap:10px;margin-bottom:16px;}
+.btn-act{flex:1;background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:10px;padding:10px;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;}
+.btn-act:hover{border-color:var(--gold3);color:var(--gold2);}
 
-💰 Price
-📣 Call to Action
-Platform
+/* PHONE PREVIEW */
+.phone-wrap{display:flex;flex-direction:column;align-items:center;padding:20px;}
+.phone-select-bar{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;justify-content:center;}
+.ps-btn{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;transition:all .2s;font-family:inherit;}
+.ps-btn.on{background:rgba(212,175,55,0.1);border-color:var(--gold);color:var(--gold2);}
+.phone-frame{width:280px;background:#111;border-radius:42px;box-shadow:0 0 0 8px #1a1a1a,0 0 0 9px #2a2a2a,0 24px 60px rgba(0,0,0,0.7);overflow:hidden;}
+.phone-notch{background:#111;height:34px;display:flex;align-items:center;justify-content:center;}
+.phone-notch-pill{width:90px;height:22px;background:#000;border-radius:0 0 16px 16px;display:flex;align-items:center;justify-content:center;}
+.phone-camera{width:9px;height:9px;background:#111;border-radius:50%;border:1.5px solid #222;}
+.phone-screen{background:#fff;min-height:480px;overflow-y:auto;}
+.phone-home{height:30px;background:#111;display:flex;align-items:center;justify-content:center;}
+.phone-pill{width:80px;height:5px;background:#333;border-radius:3px;}
+.ig-header{background:#fff;border-bottom:1px solid #ebebeb;padding:10px 12px;display:flex;align-items:center;gap:8px;}
+.ig-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);}
+.ig-username{font-size:11px;font-weight:700;color:#000;font-family:sans-serif;}
+.ig-follow{font-size:11px;color:#0095f6;font-weight:700;margin-left:auto;font-family:sans-serif;}
+.ig-img{width:100%;height:200px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:40px;}
+.ig-actions{padding:10px 12px;display:flex;gap:12px;}
+.ig-actions .save{margin-left:auto;}
+.ig-likes{padding:0 12px;font-size:11px;font-weight:700;color:#000;font-family:sans-serif;margin-bottom:4px;}
+.ig-caption-text{padding:0 12px 12px;font-size:11px;color:#000;font-family:sans-serif;line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+.ig-caption-user{font-weight:700;}
+.ig-date{padding:0 12px 10px;font-size:10px;color:#8e8e8e;font-family:sans-serif;text-transform:uppercase;}
+.tiktok-screen{background:#000;min-height:480px;position:relative;overflow:hidden;}
+.tiktok-bg{width:100%;height:380px;background:linear-gradient(160deg,#1a0533,#0d1b2a,#000);display:flex;align-items:center;justify-content:center;font-size:60px;}
+.tiktok-right{position:absolute;right:10px;top:80px;display:flex;flex-direction:column;gap:16px;align-items:center;}
+.tiktok-right .lbl{font-size:9px;color:#fff;font-family:sans-serif;text-align:center;}
+.tiktok-bottom{position:absolute;bottom:40px;left:12px;right:60px;}
+.tiktok-user{color:#fff;font-size:12px;font-weight:800;font-family:sans-serif;margin-bottom:5px;}
+.tiktok-cap{color:#fff;font-size:10px;font-family:sans-serif;line-height:1.5;white-space:pre-wrap;word-break:break-word;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
+.tiktok-music{color:#fff;font-size:10px;font-family:sans-serif;margin-top:7px;opacity:.7;}
+.fb-header{background:#fff;padding:10px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #e4e6eb;}
+.fb-avatar{width:34px;height:34px;border-radius:50%;background:#1877f2;}
+.fb-name{font-size:11px;font-weight:700;color:#000;font-family:sans-serif;}
+.fb-time{font-size:10px;color:#65676b;font-family:sans-serif;}
+.fb-body{padding:10px 12px;font-size:12px;color:#050505;font-family:sans-serif;line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+.fb-img{width:100%;height:160px;background:linear-gradient(135deg,#1877f2,#42b883);}
+.fb-actions{padding:8px 12px;border-top:1px solid #e4e6eb;display:flex;gap:8px;}
+.fb-btn{font-size:11px;color:#65676b;font-family:sans-serif;font-weight:600;flex:1;text-align:center;}
+.wa-bg{background:#0b141a;min-height:480px;padding:10px;}
+.wa-header{background:#202c33;border-radius:8px 8px 0 0;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.wa-avatar{width:30px;height:30px;border-radius:50%;background:#25d366;}
+.wa-hname{font-size:12px;font-weight:700;color:#fff;font-family:sans-serif;}
+.wa-bubble{background:#202c33;border-radius:0 12px 12px 12px;padding:10px 12px;max-width:90%;}
+.wa-bubble-text{font-size:11px;color:#e9edef;font-family:sans-serif;line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+.wa-time{font-size:10px;color:#8696a0;font-family:sans-serif;text-align:right;margin-top:4px;}
 
-📸 Instagram
-🎵 TikTok
-👥 Facebook
-💬 WhatsApp
-🐦 Twitter/X
-💼 LinkedIn
-Writing Tone
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#0e0e0e;border:1px solid var(--border2);border-radius:20px;padding:36px;width:100%;max-width:420px;position:relative;}
+.modal h2{font-size:20px;font-weight:800;margin-bottom:4px;}
+.modal p{color:var(--text2);font-size:13px;margin-bottom:24px;}
+.modal-tabs{display:flex;gap:0;margin-bottom:24px;background:rgba(255,255,255,0.04);border-radius:10px;padding:4px;}
+.modal-tab{flex:1;padding:8px;text-align:center;font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;border-radius:7px;transition:all .2s;}
+.modal-tab.on{background:rgba(212,175,55,0.15);color:var(--gold2);}
+.modal-field{margin-bottom:14px;}
+.modal-field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;}
+.modal-field input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;color:var(--text);font-size:14px;outline:none;font-family:inherit;transition:border .2s;}
+.modal-field input:focus{border-color:var(--gold3);}
+.modal-field input::placeholder{color:var(--text3);}
+.btn-modal{width:100%;background:linear-gradient(135deg,#b8962e,#d4af37,#f0d060);color:#000;border:none;border-radius:11px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px;transition:all .2s;box-shadow:0 4px 20px rgba(212,175,55,0.3);}
+.btn-modal:hover{box-shadow:0 6px 28px rgba(212,175,55,0.45);}
+.btn-modal:disabled{opacity:.5;cursor:not-allowed;}
+.modal-err{color:#f87171;font-size:12px;margin-bottom:10px;text-align:center;}
+.modal-switch{text-align:center;margin-top:14px;font-size:13px;color:var(--text2);}
+.modal-switch a{color:var(--gold2);cursor:pointer;font-weight:600;}
 
-🟢 Casual
-🟠 Hype
-🔵 Pro
-🟡 Luxury
-🟣 Witty
-💜 Inspiring
-Caption Goal
+/* UPGRADE MODAL */
+.upgrade-modal{max-width:480px;}
+.plan-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.plan-card{border:1px solid var(--border2);border-radius:14px;padding:20px;cursor:pointer;transition:all .2s;text-align:center;}
+.plan-card:hover{border-color:var(--gold3);}
+.plan-card.selected{border-color:var(--gold);background:rgba(212,175,55,0.07);}
+.plan-price{font-size:22px;font-weight:900;margin:8px 0 4px;}
+.plan-price span{font-size:13px;font-weight:600;color:var(--text2);}
+.plan-name{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;}
+.plan-badge{display:inline-block;background:linear-gradient(135deg,var(--gold3),var(--gold2));color:#000;font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;margin-bottom:8px;letter-spacing:.5px;}
+.plan-features{list-style:none;margin-top:10px;text-align:left;}
+.plan-features li{font-size:12px;color:var(--text2);padding:3px 0;}
+.plan-features li::before{content:'✓ ';color:var(--gold2);}
 
-Promotion
-🔥 Flash Sale
-Soft Sell
-📚 Edu
-Brand
-⭐ Testimonial
-Target Audience
+/* LIMIT MODAL */
+.limit-modal{text-align:center;max-width:400px;}
+.limit-icon{font-size:52px;margin-bottom:16px;}
+.limit-modal h2{font-size:22px;font-weight:800;margin-bottom:8px;}
+.limit-modal p{color:var(--text2);font-size:14px;line-height:1.6;margin-bottom:24px;}
 
-General
-👩 Moms
-🧑 Gen Z
-💼 Biz
-Language
+/* HISTORY DRAWER */
+.overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.75);backdrop-filter:blur(5px);}
+.overlay.open{display:flex;justify-content:flex-end;}
+.drawer{background:#0c0c0c;border-left:1px solid var(--border2);width:340px;max-width:90vw;height:100vh;overflow-y:auto;padding:26px;animation:slideIn .25s ease;}
+@keyframes slideIn{from{transform:translateX(100%);}to{transform:translateX(0);}}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.drawer-head h3{font-size:16px;font-weight:800;}
+.btn-close{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;}
+.h-item{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;transition:border .2s;}
+.h-item:hover{border-color:var(--gold3);}
+.h-name{font-size:13px;font-weight:700;margin-bottom:4px;}
+.h-preview{font-size:12px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.h-meta{font-size:11px;color:var(--text3);margin-top:7px;}
 
-🇮🇩 Indonesia
-🇬🇧 English
-🌏 Mix
-Caption Length
+/* FOOTER */
+footer{border-top:1px solid rgba(212,175,55,0.1);background:rgba(8,8,8,0.98);padding:18px 36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;position:relative;z-index:10;}
+.footer-logo{display:flex;align-items:center;gap:8px;}
+.footer-logo-mark{width:26px;height:26px;background:linear-gradient(135deg,#b8962e,#d4af37,#f0d060);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.footer-logo-name{font-size:13px;font-weight:800;}
+.footer-logo-name span{background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.footer-mid{text-align:center;}
+.footer-mid p{font-size:11px;color:rgba(212,175,55,0.4);letter-spacing:.8px;text-transform:uppercase;}
+.footer-right{text-align:right;}
+.footer-studio{font-size:12px;font-weight:800;letter-spacing:2px;background:linear-gradient(135deg,#b8962e,#d4af37,#f0d060);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-transform:uppercase;}
+.footer-copy{font-size:10px;color:rgba(212,175,55,0.3);margin-top:2px;}
 
-Medium
-Variations
-1 2 3
+.spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(0,0,0,0.25);border-top-color:#000;border-radius:50%;animation:sp .7s linear infinite;margin-right:8px;vertical-align:middle;}
+@keyframes sp{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="glow-1"></div>
+<div class="glow-2"></div>
+<div class="page">
 
-✨ Include Emojis
+<!-- NAV -->
+<nav>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="logo">
+      <div class="logo-mark">✍️</div>
+      <div class="logo-name">Copy<span>Post</span></div>
+    </div>
+    <div class="badge-pro">PRO</div>
+  </div>
+  <div class="nav-right" id="navRight">
+    <button class="btn-nav" onclick="openAuth('login')">Login</button>
+    <button class="btn-upgrade" onclick="openAuth('register')">Get Started Free →</button>
+  </div>
+</nav>
 
-#️⃣ Include Hashtags
-⚡ Generate Caption
+<!-- USAGE BAR (logged in only) -->
+<div class="usage-bar-wrap" id="usageBar" style="display:none;">
+  <div class="usage-text" id="usageText">Loading...</div>
+  <div class="usage-bar" id="usageBarEl" style="display:none;"><div class="usage-fill" id="usageFill" style="width:0%"></div></div>
+  <div class="usage-unlimited" id="usageUnlimited" style="display:none;">♾️ Unlimited</div>
+  <button class="btn-upgrade" id="upgradeBtn" onclick="openUpgrade()" style="display:none;margin-left:auto;">⚡ Upgrade Premium</button>
+</div>
 
+<!-- MAIN -->
+<main>
+  <!-- FORM -->
+  <div class="form-panel">
+    <div class="panel-title">New Caption</div>
+    <div class="panel-sub">Fill in your product details — AI handles the rest ✨</div>
 
-✍️ Results
-📱 Phone Preview
-📋 History
+    <div class="field">
+      <label>🛍️ Product / Business Name *</label>
+      <input id="produk" type="text" placeholder="e.g. Premium Hijab, Geprek Bu Sari..." maxlength="100" oninput="cc('produk','c1',100)"/>
+      <div class="char-count" id="c1">0/100</div>
+    </div>
+    <div class="field">
+      <label>📝 Product Description *</label>
+      <textarea id="deskripsi" rows="3" placeholder="Benefits, materials, why people must buy..." maxlength="400" oninput="cc('deskripsi','c2',400)"></textarea>
+      <div class="char-count" id="c2">0/400</div>
+    </div>
+    <div class="row-2">
+      <div class="field"><label>💰 Price</label><input id="harga" type="text" placeholder="e.g. Rp 75.000"/></div>
+      <div class="field"><label>📣 Call to Action</label><input id="cta" type="text" placeholder="DM now, WA 0812..."/></div>
+    </div>
 
+    <hr class="divider"/>
 
-✨
-Your captions will appear here.
-Fill in the form and hit Generate!
+    <div class="section-label">Platform</div>
+    <div class="chips" id="pf">
+      <div class="chip on" data-v="Instagram" onclick="sel('pf',this)">📸 Instagram</div>
+      <div class="chip" data-v="TikTok" onclick="sel('pf',this)">🎵 TikTok</div>
+      <div class="chip" data-v="Facebook" onclick="sel('pf',this)">👥 Facebook</div>
+      <div class="chip" data-v="WhatsApp" onclick="sel('pf',this)">💬 WhatsApp</div>
+      <div class="chip" data-v="Twitter/X" onclick="sel('pf',this)">🐦 Twitter/X</div>
+      <div class="chip" data-v="LinkedIn" onclick="sel('pf',this)">💼 LinkedIn</div>
+    </div>
 
-📋 Copy All 💾 Export .txt
+    <div class="section-label">Writing Tone</div>
+    <div class="chips" id="tn">
+      <div class="chip on" data-v="Casual & Friendly" onclick="sel('tn',this)">🟢 Casual</div>
+      <div class="chip" data-v="Hype & Energetic" onclick="sel('tn',this)">🟠 Hype</div>
+      <div class="chip" data-v="Professional" onclick="sel('tn',this)">🔵 Pro</div>
+      <div class="chip" data-v="Luxury & Elegant" onclick="sel('tn',this)">🟡 Luxury</div>
+      <div class="chip" data-v="Funny & Witty" onclick="sel('tn',this)">🟣 Witty</div>
+      <div class="chip" data-v="Inspiring" onclick="sel('tn',this)">💜 Inspiring</div>
+    </div>
 
+    <div class="section-label">Caption Goal</div>
+    <div class="chips" id="gl">
+      <div class="chip on" data-v="Product Promotion" onclick="sel('gl',this)">Promotion</div>
+      <div class="chip" data-v="Flash Sale" onclick="sel('gl',this)">🔥 Flash Sale</div>
+      <div class="chip" data-v="Soft Selling" onclick="sel('gl',this)">Soft Sell</div>
+      <div class="chip" data-v="Education" onclick="sel('gl',this)">📚 Edu</div>
+      <div class="chip" data-v="Brand Awareness" onclick="sel('gl',this)">Brand</div>
+      <div class="chip" data-v="Testimonial" onclick="sel('gl',this)">⭐ Testimonial</div>
+    </div>
 
+    <div class="section-label">Target Audience</div>
+    <div class="chips" id="au">
+      <div class="chip on" data-v="General audience" onclick="sel('au',this)">General</div>
+      <div class="chip" data-v="Mothers / homemakers" onclick="sel('au',this)">👩 Moms</div>
+      <div class="chip" data-v="Gen Z / youth" onclick="sel('au',this)">🧑 Gen Z</div>
+      <div class="chip" data-v="Business professionals" onclick="sel('au',this)">💼 Biz</div>
+    </div>
 
+    <div class="section-label">Language</div>
+    <div class="chips" id="lg">
+      <div class="chip on" data-v="Bahasa Indonesia" onclick="sel('lg',this)">🇮🇩 Indonesia</div>
+      <div class="chip" data-v="English" onclick="sel('lg',this)">🇬🇧 English</div>
+      <div class="chip" data-v="Mix (Indonesian + some English)" onclick="sel('lg',this)">🌏 Mix</div>
+    </div>
 
-Generate a caption first! ✨
+    <div class="section-label">Caption Length</div>
+    <div class="slider-wrap">
+      <input type="range" id="lenSlider" min="1" max="3" value="2" step="1" oninput="updateLen(this.value)"/>
+      <div class="slider-label" id="lenLabel">Medium</div>
+    </div>
 
+    <div class="section-label">Variations</div>
+    <div class="var-row">
+      <button class="vbtn" onclick="setVar(1)">1</button>
+      <button class="vbtn on" onclick="setVar(2)">2</button>
+      <button class="vbtn" onclick="setVar(3)">3</button>
+    </div>
 
-📋
-Your caption history
-will appear here.
+    <div class="toggle-row">
+      <div class="toggle-row-label">✨ Include Emojis</div>
+      <label class="toggle"><input type="checkbox" id="tEmoji" checked/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-row-label">#️⃣ Include Hashtags</div>
+      <label class="toggle"><input type="checkbox" id="tHash" checked/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+    </div>
 
-✍️
-CopyPost PRO
+    <div class="err" id="errMsg" style="display:none;"></div>
+    <button class="btn-gen" id="genBtn" onclick="generate()">⚡ Generate Caption</button>
+  </div>
 
-Powered by Groq AI • Built for UMKM Indonesia
+  <!-- RESULT -->
+  <div class="result-panel">
+    <div class="tabs">
+      <div class="tab on" id="tab-result" onclick="switchTab('result')">✍️ Results</div>
+      <div class="tab" id="tab-preview" onclick="switchTab('preview')">📱 Phone Preview</div>
+      <div class="tab" id="tab-history" onclick="switchTab('history')">📋 History</div>
+    </div>
 
-WNJ STUDIO
-© 2025 WNJ Studio. All Rights Reserved.
-Hak Cipta Dilindungi · Milik WNJ Studio
+    <div class="tab-pane on" id="pane-result">
+      <div class="empty" id="emptyState">
+        <div class="empty-ico">✨</div>
+        <p>Your captions will appear here.<br/>Fill in the form and hit <strong>Generate</strong>!</p>
+      </div>
+      <div id="loadState" style="display:none;flex-direction:column;gap:14px;">
+        <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border2);border-radius:16px;padding:20px;">
+          <div class="skel" style="width:35%;margin-bottom:16px;"></div>
+          <div class="skel"></div><div class="skel" style="width:88%;"></div><div class="skel" style="width:75%;"></div>
+        </div>
+      </div>
+      <div id="resultState" style="display:none;">
+        <div class="action-bar">
+          <button class="btn-act" onclick="copyAll()">📋 Copy All</button>
+          <button class="btn-act" onclick="exportTxt()">💾 Export .txt</button>
+        </div>
+        <div class="captions" id="captionsList"></div>
+      </div>
+    </div>
 
+    <div class="tab-pane" id="pane-preview">
+      <div class="phone-wrap">
+        <div class="phone-select-bar" id="previewBtns"></div>
+        <div class="phone-frame">
+          <div class="phone-notch"><div class="phone-notch-pill"><div class="phone-camera"></div></div></div>
+          <div class="phone-screen" id="phoneScreen">
+            <div style="display:flex;align-items:center;justify-content:center;height:440px;color:#aaa;font-size:13px;font-family:sans-serif;text-align:center;padding:20px;">Generate a caption first! ✨</div>
+          </div>
+          <div class="phone-home"><div class="phone-pill"></div></div>
+        </div>
+      </div>
+    </div>
 
+    <div class="tab-pane" id="pane-history">
+      <div id="historyContent"><div class="empty"><div class="empty-ico">📋</div><p>Your caption history<br/>will appear here.</p></div></div>
+    </div>
+  </div>
+</main>
 
-✍️
-Welcome to CopyPost
-AI Caption Generator for your business
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <div class="footer-logo-mark">✍️</div>
+    <div class="footer-logo-name">Copy<span>Post</span> <span style="font-size:9px;background:linear-gradient(135deg,#b8962e,#d4af37);color:#000;padding:2px 6px;border-radius:8px;-webkit-text-fill-color:#000;">PRO</span></div>
+  </div>
+  <div class="footer-mid">
+    <p>Powered by Groq AI • Built for UMKM Indonesia</p>
+  </div>
+  <div class="footer-right">
+    <div class="footer-studio">WNJ STUDIO</div>
+    <div class="footer-copy">© 2025 WNJ Studio. All Rights Reserved.</div>
+    <div class="footer-copy">Hak Cipta Dilindungi · Milik WNJ Studio</div>
+  </div>
+</footer>
+</div>
 
-Login
-Register
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:32px;margin-bottom:8px;">✍️</div>
+      <h2>Welcome to CopyPost</h2>
+      <p>AI Caption Generator for your business</p>
+    </div>
+    <div class="modal-tabs">
+      <div class="modal-tab on" id="tab-login" onclick="switchAuthTab('login')">Login</div>
+      <div class="modal-tab" id="tab-register" onclick="switchAuthTab('register')">Register</div>
+    </div>
+    <div class="modal-err" id="authErr" style="display:none;"></div>
 
-Email
-Password
-Login
+    <div id="loginForm">
+      <div class="modal-field"><label>Email</label><input id="loginEmail" type="email" placeholder="your@email.com"/></div>
+      <div class="modal-field"><label>Password</label><input id="loginPass" type="password" placeholder="••••••••"/></div>
+      <button class="btn-modal" id="loginBtn" onclick="doLogin()">Login</button>
+    </div>
 
-Full Name
-Email
-Password
-Create Free Account
-✅ Free: 5 generates/day • No credit card needed
+    <div id="registerForm" style="display:none;">
+      <div class="modal-field"><label>Full Name</label><input id="regName" type="text" placeholder="Your Name"/></div>
+      <div class="modal-field"><label>Email</label><input id="regEmail" type="email" placeholder="your@email.com"/></div>
+      <div class="modal-field"><label>Password</label><input id="regPass" type="password" placeholder="Min. 6 characters"/></div>
+      <button class="btn-modal" id="registerBtn" onclick="doRegister()">Create Free Account</button>
+      <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:10px;">✅ Free: 5 generates/day • No credit card needed</p>
+    </div>
+  </div>
+</div>
 
-✕
+<!-- UPGRADE MODAL -->
+<div class="modal-overlay" id="upgradeModal">
+  <div class="modal upgrade-modal">
+    <button onclick="closeUpgrade()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;">✕</button>
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:32px;margin-bottom:8px;">⚡</div>
+      <h2>Upgrade to Premium</h2>
+      <p>Unlimited generates, no daily limit!</p>
+    </div>
+    <div class="plan-cards">
+      <div class="plan-card selected" id="planMonthly" onclick="selectPlan('monthly')">
+        <div class="plan-name">Monthly</div>
+        <div class="plan-price">Rp 29K<span>/bln</span></div>
+        <ul class="plan-features">
+          <li>Unlimited generate</li>
+          <li>All platforms</li>
+          <li>3 variations</li>
+          <li>Export .txt</li>
+        </ul>
+      </div>
+      <div class="plan-card" id="planLifetime" onclick="selectPlan('lifetime')">
+        <div class="plan-badge">BEST VALUE</div>
+        <div class="plan-name">Lifetime</div>
+        <div class="plan-price">Rp 99K<span>/seumur hidup</span></div>
+        <ul class="plan-features">
+          <li>Unlimited generate</li>
+          <li>All platforms</li>
+          <li>3 variations</li>
+          <li>Priority support</li>
+        </ul>
+      </div>
+    </div>
+    <button class="btn-modal" onclick="doUpgrade()">🔥 Upgrade Sekarang</button>
+    <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:10px;">Pembayaran aman via Midtrans</p>
+  </div>
+</div>
 
-⚡
-Upgrade to Premium
-Unlimited generates, no daily limit!
+<!-- LIMIT MODAL -->
+<div class="modal-overlay" id="limitModal">
+  <div class="modal limit-modal">
+    <div class="limit-icon">⏰</div>
+    <h2>Daily Limit Reached!</h2>
+    <p>Kamu sudah pakai <strong>5 generate</strong> hari ini.<br/>Upgrade ke Premium untuk <strong>unlimited generate!</strong></p>
+    <button class="btn-modal" onclick="closeLimitModal();openUpgrade()">⚡ Upgrade Premium — Rp 29K/bln</button>
+    <p style="margin-top:14px;font-size:12px;color:var(--text2);cursor:pointer;" onclick="closeLimitModal()">Besok bisa generate lagi gratis 🕐</p>
+  </div>
+</div>
 
+<script>
+// =====================
+const API = ''; // kosong = same server. Kalau deploy terpisah isi: 'https://api.kamu.com'
+let token = localStorage.getItem('cp_token');
+let currentUser = null;
+let currentCaptions = [], currentMeta = {};
+let varCount = 2;
+let selectedPlan = 'monthly';
+const lenLabel = {1:'Short',2:'Medium',3:'Long'};
 
-Monthly
-Rp 29K/bln
-Unlimited generate
-All platforms
-3 variations
-Export .txt
+// =====================
+// INIT
+// =====================
+window.onload = async () => {
+  if (token) await loadUser();
+  else showGuestNav();
+};
 
-BEST VALUE
-Lifetime
-Rp 99K/seumur hidup
-Unlimited generate
-All platforms
-3 variations
-Priority support
-🔥 Upgrade Sekarang
-Pembayaran aman via Midtrans
+async function loadUser() {
+  try {
+    const res = await apiFetch('/api/me');
+    if (res.user) {
+      currentUser = res.user;
+      updateNav(res);
+      updateUsageBar(res);
+    }
+  } catch { token = null; localStorage.removeItem('cp_token'); showGuestNav(); }
+}
 
+// =====================
+// NAV & USAGE
+// =====================
+function showGuestNav() {
+  document.getElementById('navRight').innerHTML = `
+    <button class="btn-nav" onclick="openAuth('login')">Login</button>
+    <button class="btn-upgrade" onclick="openAuth('register')">Get Started Free →</button>`;
+  document.getElementById('usageBar').style.display = 'none';
+}
 
-⏰
-Daily Limit Reached!
-Kamu sudah pakai 5 generate hari ini.
-Upgrade ke Premium untuk unlimited generate!
-⚡ Upgrade Premium — Rp 29K/bln
-Besok bisa generate lagi gratis 🕐
+function updateNav(data) {
+  const { user } = data;
+  document.getElementById('navRight').innerHTML = `
+    <span class="nav-user">👋 ${user.name}</span>
+    <span class="nav-plan ${user.plan}">${user.plan === 'premium' ? '⭐ Premium' : '🆓 Free'}</span>
+    ${user.plan === 'free' ? '<button class="btn-upgrade" onclick="openUpgrade()">⚡ Upgrade</button>' : ''}
+    <button class="btn-nav" onclick="doLogout()">Logout</button>`;
+  document.getElementById('usageBar').style.display = 'flex';
+}
+
+function updateUsageBar(data) {
+  const { usage, remaining, limit, user } = data;
+  const txt = document.getElementById('usageText');
+  const bar = document.getElementById('usageBarEl');
+  const fill = document.getElementById('usageFill');
+  const unlimited = document.getElementById('usageUnlimited');
+  const upBtn = document.getElementById('upgradeBtn');
+
+  if (user.plan === 'premium') {
+    txt.textContent = 'Unlimited generates ✨';
+    unlimited.style.display = 'block';
+    bar.style.display = 'none';
+    upBtn.style.display = 'none';
+  } else {
+    txt.textContent = `Today: ${usage}/${limit} generates used`;
+    bar.style.display = 'block';
+    unlimited.style.display = 'none';
+    const pct = (usage / limit) * 100;
+    fill.style.width = pct + '%';
+    fill.className = 'usage-fill' + (pct >= 80 ? ' danger' : '');
+    if (usage >= limit) upBtn.style.display = 'block';
+  }
+}
+
+// =====================
+// AUTH
+// =====================
+function openAuth(tab) { document.getElementById('authModal').classList.add('open'); switchAuthTab(tab); }
+function closeAuth() { document.getElementById('authModal').classList.remove('open'); }
+function switchAuthTab(t) {
+  ['login','register'].forEach(x => {
+    document.getElementById('tab-'+x).classList.toggle('on', x===t);
+    document.getElementById(x+'Form').style.display = x===t?'block':'none';
+  });
+  document.getElementById('authErr').style.display = 'none';
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const pass = document.getElementById('loginPass').value;
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Logging in...';
+  try {
+    const res = await apiFetch('/api/login', 'POST', { email, password: pass });
+    token = res.token; localStorage.setItem('cp_token', token); currentUser = res.user;
+    closeAuth(); await loadUser();
+  } catch(e) { showAuthErr(e.message); }
+  btn.disabled = false; btn.textContent = 'Login';
+}
+
+async function doRegister() {
+  const name = document.getElementById('regName').value;
+  const email = document.getElementById('regEmail').value;
+  const pass = document.getElementById('regPass').value;
+  const btn = document.getElementById('registerBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Creating account...';
+  try {
+    const res = await apiFetch('/api/register', 'POST', { name, email, password: pass });
+    token = res.token; localStorage.setItem('cp_token', token); currentUser = res.user;
+    closeAuth(); await loadUser();
+  } catch(e) { showAuthErr(e.message); }
+  btn.disabled = false; btn.textContent = 'Create Free Account';
+}
+
+function doLogout() { token = null; localStorage.removeItem('cp_token'); currentUser = null; showGuestNav(); }
+function showAuthErr(msg) { const el=document.getElementById('authErr'); el.textContent=msg; el.style.display='block'; }
+
+// =====================
+// GENERATE
+// =====================
+async function generate() {
+  if (!token) { openAuth('login'); return; }
+  const produk = document.getElementById('produk').value.trim();
+  const deskripsi = document.getElementById('deskripsi').value.trim();
+  if (!produk || !deskripsi) { showErr('Product name & description are required!'); return; }
+  document.getElementById('errMsg').style.display = 'none';
+
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Generating...';
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('resultState').style.display = 'none';
+  document.getElementById('loadState').style.display = 'flex';
+  switchTab('result');
+
+  currentMeta = { platform: getV('pf'), tone: getV('tn'), goal: getV('gl'), produk };
+
+  try {
+    const res = await apiFetch('/api/generate', 'POST', {
+      produk, deskripsi,
+      harga: document.getElementById('harga').value.trim(),
+      cta: document.getElementById('cta').value.trim(),
+      platform: getV('pf'), tone: getV('tn'), goal: getV('gl'),
+      audience: getV('au'), lang: getV('lg'),
+      length: document.getElementById('lenSlider').value,
+      useEmoji: document.getElementById('tEmoji').checked,
+      useHash: document.getElementById('tHash').checked,
+      varCount
+    });
+
+    currentCaptions = parseVars(res.text, varCount);
+    document.getElementById('loadState').style.display = 'none';
+    document.getElementById('resultState').style.display = 'block';
+    renderCaptions(currentCaptions, currentMeta);
+    renderPreviewBtns();
+    renderPhonePreview(currentCaptions[0], currentMeta.platform);
+
+    // Update usage bar
+    if (currentUser) await loadUser();
+
+  } catch(e) {
+    document.getElementById('loadState').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'flex';
+    if (e.code === 'limit_reached') { showLimitModal(); }
+    else showErr(e.message || 'Failed to generate. Try again!');
+  }
+
+  btn.disabled = false; btn.innerHTML = '⚡ Generate Caption';
+}
+
+// =====================
+// RENDER CAPTIONS
+// =====================
+function parseVars(text, count) {
+  const r = [];
+  for (let i=1;i<=count;i++){
+    const sm=`===VAR${i}===`, em=i<count?`===VAR${i+1}===`:null;
+    const s=text.indexOf(sm); if(s===-1){r.push(text.trim());continue;}
+    const cs=s+sm.length, e=em?text.indexOf(em):text.length;
+    r.push(text.slice(cs,e===-1?text.length:e).trim());
+  }
+  return r;
+}
+
+function renderCaptions(variations, meta) {
+  const emo={Instagram:'📸',TikTok:'🎵',Facebook:'👥',WhatsApp:'💬','Twitter/X':'🐦',LinkedIn:'💼'};
+  const list=document.getElementById('captionsList'); list.innerHTML='';
+  variations.forEach((text,i)=>{
+    const card=document.createElement('div'); card.className='c-card'; card.style.animationDelay=(i*.1)+'s';
+    card.innerHTML=`
+      <div class="c-header">
+        <div class="c-var">VARIATION ${i+1}</div>
+        <div class="c-actions">
+          <button class="ibtn" onclick="showPreview(${i})">📱</button>
+          <button class="ibtn" id="cp${i}" onclick="copySingle(${i},this)">📋 Copy</button>
+        </div>
+      </div>
+      <div class="c-text" id="ct${i}">${esc(text)}</div>
+      <div class="c-footer">
+        <span class="c-tag">${emo[meta.platform]||'📱'} ${meta.platform}</span>
+        <span class="c-tag">🎭 ${meta.tone}</span>
+        <span class="c-tag">🎯 ${meta.goal}</span>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function renderPreviewBtns() {
+  document.getElementById('previewBtns').innerHTML = currentCaptions.map((_,i)=>
+    `<button class="ps-btn ${i===0?'on':''}" onclick="showPreview(${i})">Variation ${i+1}</button>`).join('');
+}
+
+function showPreview(i) {
+  renderPhonePreview(currentCaptions[i], currentMeta.platform);
+  switchTab('preview');
+  document.querySelectorAll('.ps-btn').forEach((b,j)=>b.classList.toggle('on',j===i));
+}
+
+function renderPhonePreview(text, platform) {
+  if (!text) return;
+  const s=document.getElementById('phoneScreen');
+  const t=text.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  if(platform==='Instagram'){
+    s.innerHTML=`<div class="ig-header"><div class="ig-avatar"></div><div><div class="ig-username">your_business</div><div style="font-size:10px;color:#8e8e8e;font-family:sans-serif;">Sponsored</div></div><div class="ig-follow">Follow</div></div><div class="ig-img">🛍️</div><div class="ig-actions"><span>🤍</span><span>💬</span><span>📤</span><span class="save">🔖</span></div><div class="ig-likes">1,234 likes</div><div class="ig-caption-text"><span class="ig-caption-user">your_business</span> ${t}</div><div class="ig-date">2 hours ago</div>`;
+  } else if(platform==='TikTok'){
+    s.innerHTML=`<div class="tiktok-screen"><div class="tiktok-bg">🎵</div><div class="tiktok-right"><div><span>❤️</span><div class="lbl">12.4K</div></div><div><span>💬</span><div class="lbl">834</div></div><div><span>↪️</span><div class="lbl">Share</div></div></div><div class="tiktok-bottom"><div class="tiktok-user">@your_business</div><div class="tiktok-cap">${t}</div><div class="tiktok-music">🎵 Original Sound</div></div></div>`;
+  } else if(platform==='Facebook'){
+    s.innerHTML=`<div class="fb-header"><div class="fb-avatar"></div><div><div class="fb-name">Your Business</div><div class="fb-time">2 hours ago · 🌐</div></div></div><div class="fb-body">${t}</div><div class="fb-img"></div><div class="fb-actions"><div class="fb-btn">👍 Like</div><div class="fb-btn">💬 Comment</div><div class="fb-btn">↪️ Share</div></div>`;
+  } else if(platform==='WhatsApp'){
+    s.innerHTML=`<div class="wa-bg"><div class="wa-header"><div class="wa-avatar"></div><div class="wa-hname">Your Business 💼</div></div><div class="wa-bubble"><div class="wa-bubble-text">${t}</div><div class="wa-time">10:35 ✓✓</div></div></div>`;
+  } else {
+    s.innerHTML=`<div style="padding:20px;font-size:13px;color:#333;line-height:1.7;font-family:sans-serif;white-space:pre-wrap;">${t}</div>`;
+  }
+}
+
+function copySingle(i, btn) {
+  navigator.clipboard.writeText(currentCaptions[i]).then(()=>{
+    btn.textContent='✅ Copied!'; btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='📋 Copy';btn.classList.remove('ok');},2000);
+  });
+}
+
+function copyAll() {
+  const txt=currentCaptions.map((c,i)=>`--- VARIATION ${i+1} ---\n${c}`).join('\n\n');
+  navigator.clipboard.writeText(txt);
+}
+
+function exportTxt() {
+  if(!currentCaptions.length)return;
+  const content=`CopyPost Pro – Caption Export\nProduct: ${currentMeta.produk}\n${'─'.repeat(40)}\n\n`+currentCaptions.map((c,i)=>`VARIATION ${i+1}\n${c}`).join('\n\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type:'text/plain'}));
+  a.download=`copypost-${(currentMeta.produk||'caption').replace(/\s+/g,'-')}.txt`; a.click();
+}
+
+// =====================
+// HISTORY TAB
+// =====================
+async function loadHistory() {
+  if (!token) return;
+  try {
+    const res = await apiFetch('/api/history');
+    const el = document.getElementById('historyContent');
+    if (!res.history.length) { el.innerHTML='<div class="empty"><div class="empty-ico">📋</div><p>No history yet!</p></div>'; return; }
+    const emo={Instagram:'📸',TikTok:'🎵',Facebook:'👥',WhatsApp:'💬','Twitter/X':'🐦',LinkedIn:'💼'};
+    el.innerHTML='<div class="captions">'+res.history.map(h=>`
+      <div class="h-item" style="background:rgba(255,255,255,0.02);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:10px;">
+        <div class="h-name" style="font-size:13px;font-weight:700;margin-bottom:4px;">${esc(h.produk||'')} ${emo[h.platform]||''}</div>
+        <div class="h-preview" style="font-size:12px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${esc(h.content||'')}</div>
+        <div class="h-meta" style="font-size:11px;color:var(--text3);margin-top:7px;">${h.created_at}</div>
+      </div>`).join('')+'</div>';
+  } catch {}
+}
+
+// =====================
+// UPGRADE / LIMIT MODALS
+// =====================
+function openUpgrade() { document.getElementById('upgradeModal').classList.add('open'); }
+function closeUpgrade() { document.getElementById('upgradeModal').classList.remove('open'); }
+function selectPlan(p) {
+  selectedPlan = p;
+  document.getElementById('planMonthly').classList.toggle('selected', p==='monthly');
+  document.getElementById('planLifetime').classList.toggle('selected', p==='lifetime');
+}
+async function doUpgrade() {
+  if (!token) { closeUpgrade(); openAuth('login'); return; }
+  try {
+    const res = await apiFetch('/api/create-order', 'POST', { plan: selectedPlan });
+    // Midtrans Snap popup
+    if (window.snap && res.snap_token) {
+      window.snap.pay(res.snap_token, {
+        onSuccess: () => { closeUpgrade(); loadUser(); alert('🎉 Upgrade berhasil! Selamat menikmati Premium!'); },
+        onPending: () => alert('⏳ Pembayaran pending, kami akan update statusnya.'),
+        onError: () => alert('❌ Pembayaran gagal, coba lagi ya!')
+      });
+    } else {
+      alert('Midtrans belum dikonfigurasi. Hubungi admin WNJ Studio.');
+    }
+  } catch(e) { alert('Gagal membuat order: ' + e.message); }
+}
+
+function showLimitModal() { document.getElementById('limitModal').classList.add('open'); }
+function closeLimitModal() { document.getElementById('limitModal').classList.remove('open'); }
+
+// =====================
+// HELPERS
+// =====================
+async function apiFetch(url, method='GET', body=null) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + url, opts);
+  const data = await res.json();
+  if (!res.ok) { const err = new Error(data.error || 'Error'); err.code = data.error; throw err; }
+  return data;
+}
+
+function cc(id,cid,max){const v=document.getElementById(id).value.length;const el=document.getElementById(cid);el.textContent=v+'/'+max;el.style.color=v>max*.85?'#f59e0b':'var(--text3)';}
+function sel(gid,el){document.querySelectorAll('#'+gid+' .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+function getV(gid){const el=document.querySelector('#'+gid+' .chip.on');return el?el.dataset.v:'';}
+function updateLen(v){document.getElementById('lenLabel').textContent=lenLabel[v];}
+function setVar(n){varCount=n;document.querySelectorAll('.vbtn').forEach((b,i)=>b.classList.toggle('on',i+1===n));}
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('.tab-pane').forEach(el=>el.classList.remove('on'));
+  document.getElementById('tab-'+t).classList.add('on');
+  document.getElementById('pane-'+t).classList.add('on');
+  if(t==='history') loadHistory();
+}
+function showErr(msg){const el=document.getElementById('errMsg');el.textContent=msg;el.style.display='block';}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+</script>
+
+<!-- Midtrans Snap (ganti ke production URL kalau sudah live) -->
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="YOUR_MIDTRANS_CLIENT_KEY"></script>
+</body>
+</html>
