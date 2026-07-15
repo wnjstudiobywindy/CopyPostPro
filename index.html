@@ -667,43 +667,43 @@ function showSuccessToast(msg) {
 // TEMPLATE ENGINE — pure JS, no API, no rate limits
 // ============================================================
 const TONE_DATA = {
-  'Casual & Friendly': { adj:['enak banget','oke punya','recommended','kece','asik'], emoji:['😊','🙌','✨','👍','😄'], opener:['Yuk','Cus','Guys','Nih'] },
-  'Hype & Energetic':  { adj:['gila-gilaan','maksimal','luar biasa','ngebut','anti mainstream'], emoji:['🔥','⚡','🚀','💥','🙌'], opener:['WOW','GASKEUN','SIAP-SIAP','JANGAN SAMPAI KELEWATAN'] },
-  'Professional':      { adj:['berkualitas tinggi','terpercaya','profesional','teruji','solutif'], emoji:['✅','📈','💼','🏆','🔷'], opener:['Diperkenalkan','Hadir untuk Anda','Solusi terbaik','Kini tersedia'] },
-  'Luxury & Elegant':  { adj:['eksklusif','premium','elegan','berkelas','istimewa'], emoji:['✨','👑','💎','🥂','🤍'], opener:['Persembahan istimewa','Kemewahan hadir dalam','Nikmati keeksklusifan','Sentuhan mewah dari'] },
-  'Funny & Witty':     { adj:['ngangenin','bikin nagih','anti gagal move on','worth it parah','juara receh'], emoji:['😂','🤣','😜','👀','🫶'], opener:['Woy','Eh serius deh','Denger-denger','Katanya sih'] },
-  'Inspiring':         { adj:['penuh makna','membanggakan','menginspirasi','bernilai','autentik'], emoji:['🌟','💫','🙏','🌸','💛'], opener:['Setiap perjalanan dimulai dari','Percaya atau tidak','Di balik setiap karya, ada cerita','Kadang hal kecil membawa'] },
+  'Casual & Friendly': { adj:['enak banget','oke punya','recommended','kece','asik'], emoji:['😊','🙌','✨','👍','😄'], opener:['Yuk','Cus','Nih','Eh'] },
+  'Hype & Energetic':  { adj:['gila-gilaan','maksimal','luar biasa','ngebut','anti mainstream'], emoji:['🔥','⚡','🚀','💥','🙌'], opener:['Woy','Gaskeun','Siap-siap','Wow'] },
+  'Professional':      { adj:['berkualitas tinggi','terpercaya','profesional','teruji','solutif'], emoji:['✅','📈','💼','🏆','🔷'], opener:['Perkenalkan','Kabar baik','Hadir untuk Anda','Kini saatnya'] },
+  'Luxury & Elegant':  { adj:['eksklusif','premium','elegan','berkelas','istimewa'], emoji:['✨','👑','💎','🥂','🤍'], opener:['Istimewa untuk Anda','Eksklusif kali ini','Kini hadir','Dengan bangga kami persembahkan'] },
+  'Funny & Witty':     { adj:['ngangenin','bikin nagih','anti gagal move on','worth it parah','juara receh'], emoji:['😂','🤣','😜','👀','🫶'], opener:['Woy','Eh serius deh','Denger-denger','Btw'] },
+  'Inspiring':         { adj:['penuh makna','membanggakan','menginspirasi','bernilai','autentik'], emoji:['🌟','💫','🙏','🌸','💛'], opener:['Percaya atau tidak','Ternyata','Kadang','Siapa sangka'] },
 };
 
 const GOAL_DATA = {
   'Product Promotion': {
     hook: ['Kenalin {produk}, {adj} buat kamu yang cari yang terbaik!','{opener} {produk} udah hadir, dan ini beneran {adj}.','Cari yang {adj}? {produk} jawabannya!'],
-    body: ['{deskripsi}','Soal kualitas, {deskripsi}','Yang bikin beda: {deskripsi}'],
+    body: ['{deskripsi}'],
     cta:  ['Order sekarang sebelum kehabisan!','Klik order, jangan ditunda-tunda lagi.','DM/checkout sekarang juga ya!'],
   },
   'Flash Sale': {
     hook: ['🚨 FLASH SALE {produk}! Promo segini gak akan lama-lama.','{opener}, {produk} lagi diskon gede-gedean sekarang!','Buruan sebelum flash sale {produk} ini berakhir!'],
-    body: ['{deskripsi}','Diskon spesial: {deskripsi}','Cuma hari ini: {deskripsi}'],
+    body: ['{deskripsi}'],
     cta:  ['Buruan checkout, stok terbatas!','Promo cuma sampai stok habis — order sekarang!','Jangan sampai nyesel, buruan order!'],
   },
   'Soft Selling': {
     hook: ['Hari-hari kamu makin lengkap dengan {produk}.','Kadang yang sederhana justru paling berkesan — kayak {produk}.','{opener}, ada cerita menarik dari {produk}.'],
-    body: ['{deskripsi}','Kami percaya {deskripsi}','Nilai yang kami bawa: {deskripsi}'],
+    body: ['{deskripsi}'],
     cta:  ['Kalau penasaran, boleh banget cek info lengkapnya ya.','Yuk kenalan lebih jauh sama {produk}.','Cerita ini baru permulaan — cek selengkapnya di bio.'],
   },
   'Education': {
     hook: ['Tau gak sih kenapa {produk} penting buat kamu?','📚 Yuk kenalan sama {produk} dan manfaatnya.','Ini fakta menarik soal {produk} yang jarang diketahui.'],
-    body: ['{deskripsi}','Faktanya: {deskripsi}','Yang perlu kamu tau: {deskripsi}'],
+    body: ['{deskripsi}'],
     cta:  ['Simpan post ini biar gak lupa!','Share ke temen yang butuh info ini.','Follow buat tips lainnya seputar {produk}.'],
   },
   'Brand Awareness': {
     hook: ['Kenalan yuk sama {produk} — {adj} dari kami untuk kamu.','{opener}, ini dia {produk}.','Di balik {produk}, ada cerita yang {adj}.'],
-    body: ['{deskripsi}','Komitmen kami: {deskripsi}','Kami percaya {deskripsi}'],
+    body: ['{deskripsi}'],
     cta:  ['Follow kami buat kenal lebih dekat ya!','Yuk dukung karya lokal seperti {produk}.','Cek profil kami buat cerita selengkapnya.'],
   },
   'Testimonial': {
     hook: ['"{deskripsi}" — kata salah satu pelanggan {produk} kami.','Gak nyangka respon soal {produk} sebagus ini!','⭐ Testimoni asli dari pengguna {produk}:'],
-    body: ['{deskripsi}','Katanya: "{deskripsi}"','Review jujur: {deskripsi}'],
+    body: ['{deskripsi}'],
     cta:  ['Yuk rasain sendiri sensasinya, order sekarang!','Giliran kamu buat cerita pengalaman serupa!','Order sekarang & jadi testimoni berikutnya!'],
   },
 };
@@ -711,32 +711,32 @@ const GOAL_DATA = {
 const GOAL_DATA_EN = {
   'Product Promotion': {
     hook: ['Meet {produk}, {adj} for the best experience!','{opener}, {produk} is finally here and it is {adj}.','Looking for something {adj}? {produk} is the answer!'],
-    body: ['{deskripsi}','Quality-wise: {deskripsi}','What makes it different: {deskripsi}'],
+    body: ['{deskripsi}'],
     cta:  ['Order now before it is gone!','Tap to checkout, don\'t wait!','DM us or checkout now!'],
   },
   'Flash Sale': {
     hook: ['🚨 FLASH SALE on {produk}! This deal won\'t last.','{opener}, {produk} is on major discount right now!','Hurry before this {produk} flash sale ends!'],
-    body: ['{deskripsi}','Special discount: {deskripsi}','Today only: {deskripsi}'],
+    body: ['{deskripsi}'],
     cta:  ['Checkout now, limited stock!','Sale ends when stock runs out — order now!','Don\'t miss out, grab yours now!'],
   },
   'Soft Selling': {
     hook: ['Your everyday just got better with {produk}.','Sometimes the simplest things matter most — like {produk}.','{opener}, here\'s a little story about {produk}.'],
-    body: ['{deskripsi}','We believe {deskripsi}','What we stand for: {deskripsi}'],
+    body: ['{deskripsi}'],
     cta:  ['Curious? Feel free to check the full details.','Let\'s get to know {produk} better.','This is just the beginning — link in bio.'],
   },
   'Education': {
     hook: ['Did you know why {produk} matters?','📚 Let\'s learn about {produk} and its benefits.','Here\'s an interesting fact about {produk}.'],
-    body: ['{deskripsi}','Fact: {deskripsi}','What you should know: {deskripsi}'],
+    body: ['{deskripsi}'],
     cta:  ['Save this post for later!','Share with a friend who needs this.','Follow for more tips on {produk}.'],
   },
   'Brand Awareness': {
     hook: ['Say hello to {produk} — {adj}, made for you.','{opener}, this is {produk}.','Behind {produk} lies a story that is {adj}.'],
-    body: ['{deskripsi}','Our commitment: {deskripsi}','We believe {deskripsi}'],
+    body: ['{deskripsi}'],
     cta:  ['Follow us to know more!','Support local craft like {produk}.','Check our profile for the full story.'],
   },
   'Testimonial': {
     hook: ['"{deskripsi}" — said one of {produk}\'s happy customers.','We didn\'t expect this kind of feedback on {produk}!','⭐ Real testimonial from a {produk} user:'],
-    body: ['{deskripsi}','They said: "{deskripsi}"','Honest review: {deskripsi}'],
+    body: ['{deskripsi}'],
     cta:  ['Try it yourself, order now!','Your turn to share a story like this!','Order now & be our next testimonial!'],
   },
 };
@@ -768,6 +768,16 @@ const HASHTAG_AUDIENCE = {
 };
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function decap(str) {
+  if (!str) return str;
+  const firstWord = str.trim().split(' ')[0];
+  if (/^[A-Z]{2,}/.test(firstWord)) return str;
+  return str.charAt(0).toLowerCase() + str.slice(1);
+}
+function capitalize(str) {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 function pickMany(arr, n) {
   const shuffled = [...arr].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, Math.min(n, shuffled.length));
@@ -792,28 +802,54 @@ function generateHashtags(produk, goal, audience) {
   return pickMany([...new Set(pool)], 6).join(' ');
 }
 
+const BRIDGE_ID = {
+  toBody: ['Yang bikin makin yakin,','Alasannya sederhana:','Coba bayangkan,','Faktanya,','Yang pasti,'],
+  toDetail: ['Selain itu,','Belum lagi,','Ditambah lagi,','Yang gak kalah penting,'],
+  toClose: ['Jadi, tunggu apa lagi?','Nah, ini saatnya kamu coba sendiri.','Karena itu,','Maka dari itu,'],
+};
+const BRIDGE_EN = {
+  toBody: ['What makes it even better,','Here\'s the thing:','Picture this,','The fact is,','What matters most,'],
+  toDetail: ['On top of that,','Not only that,','Even better,','What\'s more,'],
+  toClose: ['So, what are you waiting for?','This is your sign to try it.','That\'s why,','Which is why,'],
+};
+
 function generateOneCaption({ produk, deskripsi, harga, cta, tone, goal, audience, lang, lenVal, useEmoji, useHash }) {
   const isEN = lang === 'English';
   const goalSet = isEN ? (GOAL_DATA_EN[goal] || GOAL_DATA_EN['Product Promotion']) : (GOAL_DATA[goal] || GOAL_DATA['Product Promotion']);
   const toneSet = TONE_DATA[tone] || TONE_DATA['Casual & Friendly'];
   const audLine = isEN ? (AUDIENCE_LINE_EN[audience]||'') : (AUDIENCE_LINE[audience]||'');
+  const bridge = isEN ? BRIDGE_EN : BRIDGE_ID;
 
   const vars = { produk, deskripsi, harga: harga||'', cta: cta||'', adj: pick(toneSet.adj), opener: pick(toneSet.opener) };
 
   let hook = fillTemplate(pick(goalSet.hook), vars);
   let body = fillTemplate(pick(goalSet.body), vars);
   let ctaLine = cta ? cta : fillTemplate(pick(goalSet.cta), vars);
-  let priceLine = harga ? (isEN ? `Price: ${harga}` : `Harga: ${harga}`) : '';
+  let priceLine = harga ? (isEN ? `Priced at ${harga}.` : `Dibanderol dengan harga ${harga}.`) : '';
 
-  let parts = [];
+  let caption;
   if (lenVal === '1') {
-    parts = [hook, ctaLine];
+    // Short: hook flows straight into the CTA as one tight paragraph.
+    caption = `${hook} ${ctaLine}`;
   } else if (lenVal === '3') {
-    parts = [hook, audLine + body, priceLine, (isEN?'One more thing — ':'Satu lagi — ') + (isEN?'don\'t miss this chance.':'jangan sampai kelewatan ya.'), ctaLine];
+    // Long: multi-paragraph narrative, each paragraph opened by a bridge phrase so it reads as one continuous story.
+    const p1 = hook;
+    const bodySentence = capitalize(body) + (/[.!?]$/.test(body) ? '' : '.');
+    const p2 = audLine
+      ? `${pick(bridge.toBody)} ${decap(audLine.trim())} ${bodySentence}`
+      : `${pick(bridge.toBody)} ${decap(bodySentence)}`;
+    const p3 = [priceLine, `${pick(bridge.toDetail)} ${decap(ctaLine)}`].filter(Boolean).join(' ');
+    caption = [p1, p2, p3].filter(Boolean).join('\n\n');
   } else {
-    parts = [hook, audLine + body, priceLine, ctaLine];
+    // Medium: two connected paragraphs instead of four separate fragments.
+    const p1 = hook;
+    const bodySentence = capitalize(body) + (/[.!?]$/.test(body) ? '' : '.');
+    const middle = audLine
+      ? `${pick(bridge.toBody)} ${decap(audLine.trim())} ${bodySentence}`
+      : `${pick(bridge.toBody)} ${decap(bodySentence)}`;
+    const p2 = [middle, priceLine, ctaLine].filter(Boolean).join(' ');
+    caption = [p1, p2].filter(Boolean).join('\n\n');
   }
-  let caption = parts.filter(Boolean).join('\n\n');
 
   if (lang === 'Mix (Indonesian + some English)') caption = toMix(caption);
 
